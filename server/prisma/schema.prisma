@@ -1,0 +1,120 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String       @id @default(uuid())
+  username     String       @unique
+  email        String       @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  bio          String?
+  role         String       @default("EMPLOYEE") // ADMIN, EMPLOYEE
+  isApproved   Boolean      @default(false)
+  isOnline     Boolean      @default(false)
+  lastSeen     DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  memberships  ChatMember[]
+  messages     Message[]
+  reactions    Reaction[]
+  wallet       Wallet?
+}
+
+model Chat {
+  id                  String       @id @default(uuid())
+  type                String       @default("DIRECT") // DIRECT, GROUP, CHANNEL, SECRET, SAVED
+  title               String?
+  description         String?
+  avatarUrl           String?
+  inviteCode          String?      @unique
+  e2eeInitiatorPubkey String?
+  e2eeReceiverPubkey  String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  members             ChatMember[]
+  messages            Message[]
+}
+
+model ChatMember {
+  id        String   @id @default(uuid())
+  chatId    String
+  userId    String
+  role      String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt  DateTime @default(now())
+
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+}
+
+model Message {
+  id          String       @id @default(uuid())
+  chatId      String
+  senderId    String
+  replyToId   String?
+  forwardFrom String?
+  content     String?      // Plaintext for standard chats
+  ciphertext  String?      // E2EE payload for secret chats
+  iv          String?      // E2EE initialization vector
+  ttlSeconds  Int?         // E2EE self-destruct countdown timer
+  isEdited    Boolean      @default(false)
+  isDeleted   Boolean      @default(false)
+  isPinned    Boolean      @default(false)
+  status      String       @default("SENT") // PENDING, SENT, DELIVERED, READ
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  expiresAt   DateTime?
+
+  chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender      User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo     Message?     @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies     Message[]    @relation("MessageReplies")
+  reactions   Reaction[]
+  attachments Attachment[]
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  messageId String
+  fileUrl   String
+  fileName  String
+  fileType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+}
+
+model Wallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  address       String   @unique
+  publicKey     String
+  encryptedSeed String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

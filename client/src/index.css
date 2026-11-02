@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --tg-bg: #0e1621;
+    --tg-surface: #17212b;
+    --tg-surface-hover: #202b36;
+    --tg-surface-active: #2b3947;
+    --tg-primary: #2b5278;
+    --tg-accent: #5288c1;
+    --tg-accent-hover: #5d9ad8;
+    --tg-text: #f5f5f5;
+    --tg-text-secondary: #7f91a4;
+    --tg-bubble-out: #2b5278;
+    --tg-bubble-in: #182533;
+    --tg-border: #0e1621;
+    --tg-online: #4fae4e;
+  }
+
+  .theme-light {
+    --tg-bg: #eef2f5;
+    --tg-surface: #ffffff;
+    --tg-surface-hover: #f4f6f8;
+    --tg-surface-active: #e4e9ee;
+    --tg-primary: #3390ec;
+    --tg-accent: #3390ec;
+    --tg-accent-hover: #2b7bc9;
+    --tg-text: #111827;
+    --tg-text-secondary: #707579;
+    --tg-bubble-out: #eeffde;
+    --tg-bubble-in: #ffffff;
+    --tg-border: #e5e7eb;
+    --tg-online: #34c759;
+  }
+
+  body {
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    user-select: none;
+    overflow: hidden;
+  }
+}
+
+/* Custom Telegram Web scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Telegram Wallpaper pattern */
+.tg-wallpaper {
+  background-color: #0e1621;
+  background-image: radial-gradient(circle at 50% 50%, #152232 0%, #0e1621 100%);
+  background-attachment: fixed;
+}
+
+.theme-light .tg-wallpaper,
+.theme-light.tg-wallpaper {
+  background-color: #dbe4ec;
+  background-image: radial-gradient(circle at 50% 50%, #eaf0f6 0%, #d4dfeb 100%);
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Message Bubble Tail */
+.bubble-tail-out::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 10px 10px;
+  border-color: transparent transparent var(--tg-bubble-out) transparent;
+}
+
+.bubble-tail-in::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 0;
+  border-color: transparent var(--tg-bubble-in) transparent transparent;
+}
